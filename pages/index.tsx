@@ -6,7 +6,7 @@ import {
 import '@dialectlabs/react-ui/index.css'
 import { ReceiptType } from '@cardinal/staking/dist/cjs/programs/stakePool'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { PublicKey, Signer, Transaction } from '@solana/web3.js'
+import { PublicKey, Signer, Transaction, Authorized, Keypair, StakeProgram, LAMPORTS_PER_SOL, Lockup } from '@solana/web3.js'
 import { Header } from 'common/Header'
 import Head from 'next/head'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
@@ -52,6 +52,8 @@ import { useValidatorInfo } from 'hooks/useValidatorInfo'
 import { useSentryPower } from 'hooks/useSentryPower'
 import { Label } from 'components/Label'
 
+const VOTE_KEY = 'LodezVTbz3v5GK6oULfWNFfcs7D4rtMZQkmRjnh65gq'
+
 function Home() {
   const router = useRouter()
   const { connection } = useEnvironmentCtx()
@@ -78,6 +80,8 @@ function Home() {
   )
   const [loadingClaimRewards, setLoadingClaimRewards] = useState(false)
   const [showFungibleTokens, setShowFungibleTokens] = useState(false)
+  const [creatingStakeAccount, setCreatingStakeAccount] = useState(false)
+  const [stakeAmount, setStakeAmount] = useState(0)
   const allowedTokenDatas = useAllowedTokenDatas(showFungibleTokens)
   const { data: stakePoolMetadata } = useStakePoolMetadata()
   const analytics = usePoolAnalytics()
@@ -103,6 +107,72 @@ function Home() {
     stakePoolMetadata?.receiptType &&
       setReceiptType(stakePoolMetadata?.receiptType)
   }, [stakePoolMetadata?.name])
+
+  async function handleSolStake() {
+    const publicKey = wallet.publicKey
+    if(!publicKey){
+      notify({ message: `Wallet not connected`, type: 'error' })
+      return
+    }
+    if(!stakeAmount || stakeAmount <= 0) {
+      notify({ message: `Stake amount needs to be greater than 0`, type: 'error' })
+      return
+    }
+    console.log(stakeAmount)
+    setCreatingStakeAccount(true)
+    try {
+      const stakeAccount = Keypair.generate()
+      const minimumRent = await connection.getMinimumBalanceForRentExemption(
+        StakeProgram.space
+      )
+      const amountToStake = minimumRent + (stakeAmount * LAMPORTS_PER_SOL)
+      const createStakeAccountTx = StakeProgram.createAccount({
+        authorized: new Authorized(publicKey, publicKey), // Here we set two authorities: Stake Authority and Withdrawal Authority. Both are set to our wallet.
+        fromPubkey: publicKey,
+        lamports: amountToStake,
+        lockup: new Lockup(0, 0, publicKey), // Optional. We'll set this to 0 for demonstration purposes.
+        stakePubkey: stakeAccount.publicKey,
+      })
+
+      const createStakeAccountTxId = await wallet.sendTransaction(
+        createStakeAccountTx,
+        connection,
+        {signers: [stakeAccount]}
+      )
+
+      console.log(`Stake account created. Tx Id: ${createStakeAccountTxId}`)
+
+      let stakeBalance = await connection.getBalance(stakeAccount.publicKey)
+
+      console.log(`Stake account balance: ${stakeBalance / LAMPORTS_PER_SOL} SOL`)
+
+      // TODO: We need to capture better errors as this doesn't matter and shouldn't fail the
+      // entire set.
+      // let stakeStatus = await connection.getStakeActivation(stakeAccount.publicKey)
+      // console.log(`Stake account status: ${stakeStatus.state}`)
+
+      const selectedValidatorPubkey = new PublicKey(VOTE_KEY)
+
+      const delegateTx = StakeProgram.delegate({
+        stakePubkey: stakeAccount.publicKey,
+        authorizedPubkey: publicKey,
+        votePubkey: selectedValidatorPubkey,
+      })
+
+      const delegateTxId = await wallet.sendTransaction(
+        delegateTx,
+        connection
+      )
+
+      console.log(
+        `Stake account delegated to ${selectedValidatorPubkey}. Tx Id: ${delegateTxId}`
+      )
+      let stakeStatus = await connection.getStakeActivation(stakeAccount.publicKey)
+      console.log(`Stake account status: ${stakeStatus.state}`)
+    } catch(err: any) {
+      console.error(err)
+    }
+  }
 
   async function handleUnstake() {
     if (!wallet.connected) {
