@@ -21,7 +21,7 @@ export interface EnvironmentContextValues {
 export const ENVIRONMENTS: Environment[] = [
   {
     label: 'mainnet-beta',
-    primary: process.env.NEXT_PUBLIC_MAINNET_PRIMARY || 'https://rpc.sentries.io/rpc',
+    primary: process.env.NEXT_PUBLIC_MAINNET_PRIMARY || 'https://breakpoint.sentries.io/drift',
     secondary: process.env.NEXT_PUBLIC_MAINNET_SECONDARY,
   },
   {

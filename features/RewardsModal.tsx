@@ -105,12 +105,15 @@ function formatRewardsTable(rewards: Rewards) {
   const { rewardAmount, rewardEpoch, rewardPostBalance } = rewards
   const table = []
 
-  const tableLength = rewardEpoch.length - 1 >= 11 ? 11 : rewardEpoch.length - 1
-  for (let i = tableLength; i >= 0; i--) {
+  
+  const tableLength = rewardEpoch.length - 1
+  const limit = tableLength >= 11 ? 11 : tableLength
+  
+  for (let i = 0; i <= limit; i++) {
     table.push([
-      rewardEpoch[i], 
-      rewardAmount[i] as number / LAMPORTS_PER_SOL, 
-      rewardPostBalance[i] as number / LAMPORTS_PER_SOL
+      rewardEpoch[tableLength - i], 
+      rewardAmount[tableLength - i] as number / LAMPORTS_PER_SOL, 
+      rewardPostBalance[tableLength - i] as number / LAMPORTS_PER_SOL
     ])
   }
 
