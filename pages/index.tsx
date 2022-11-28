@@ -554,7 +554,7 @@ function Home() {
                 The Power Grid
               </h1>
               <p className="text-lg text-neutral-300">
-                Stake your Sentry here, and power it up by locking SOL in our
+                Stake your Sentry here, increase rewards by staking SOL in our
                 validator, The Lode
               </p>
               {renderStats}
@@ -584,7 +584,7 @@ function Home() {
                   recover={sentryPower.refetch}
                 />
               </div>
-              <StakeModal isOpen={isStakingModalOpen} setIsOpen={setIsStakingModalOpen} />
+              {/* <StakeModal isOpen={isStakingModalOpen} setIsOpen={setIsStakingModalOpen} /> */}
               <div className="sm:w-full md:w-full lg:w-2/3 p-4">
                 <Tab.Group defaultIndex={
                   totalUnstakedSentries > totalStakedSentries ? 0 : 1
@@ -611,9 +611,9 @@ function Home() {
                         : null}
                       </div>
                     </TabButton>
-                    <TabButton>
+                    {/* <TabButton>
                       <Button as="button" size="sm" variant="secondary" onClick={() => setIsStakingModalOpen(true)}>Stake <span className="opacity-50 font-normal">◎</span></Button>
-                    </TabButton>
+                    </TabButton> */}
                   </Tab.List>
                   <Tab.Panels>
                     <TabPanel>

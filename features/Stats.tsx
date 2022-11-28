@@ -104,10 +104,6 @@ export function Stats(props: StatsProps) {
       </div>
       <div className="text-white text-sm text-center">
         <p className="pb-0">Your current SOL staked with The Lode is {parseFloat(truncateFloat(stakedSol)).toLocaleString()} ◎</p>
-        {solNeeded > 0 ? (
-          <p>You will need {parseFloat(truncateFloat(solNeeded)).toLocaleString()} ◎ to power up the {sentriesCount} Sentries NFTs</p>
-        ) : ('')
-        }
       </div>
       {/* <div className="flex justify-between bg-[#F7B551] bg-opacity-30 border border-[#F7B551] p-4 py-3 rounded-2xl text-[#FFDEAD]">
         <div className="flex items-center gap-2">
@@ -143,7 +139,7 @@ export function Stats(props: StatsProps) {
       <Separator />
       <StatsBlock 
         color="#4690C1"
-        title="Powered Up Sentries"
+        title="Sentry SOL Stakers"
         icon={
           <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6.21333 9.35331H8.27333V14.1533C8.27333 14.86 9.15333 15.1933 9.62 14.66L14.6667 8.92665C15.1067 8.42665 14.7533 7.64665 14.0867 7.64665H12.0267V2.84665C12.0267 2.13998 11.1467 1.80665 10.68 2.33998L5.63333 8.07331C5.2 8.57331 5.55333 9.35331 6.21333 9.35331Z" fill="white"/>
